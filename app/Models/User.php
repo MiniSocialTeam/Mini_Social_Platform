@@ -17,6 +17,7 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $primaryKey = 'user_id';
     /**
      * Get the attributes that should be cast.
      *
@@ -29,4 +30,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function stories() {
+    return $this->hasMany(Story::class, 'user_id');
+}   
+    
 }
