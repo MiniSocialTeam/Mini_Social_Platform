@@ -18,13 +18,17 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-{
-    // UNIQUEMENT POUR LE TEST 
-    if (config('app.env') === 'local') {
-        $user = \App\Models\User::first();
-        if ($user) {
-            auth()->login($user);
+    {
+        // UNIQUEMENT POUR LE TEST 
+        if (config('app.env') === 'local') {
+            try {
+                $user = \App\Models\User::first();
+                if ($user) {
+                    auth()->login($user);
+                }
+            } catch (\Exception $e) {
+                // Tables don't exist yet, likely during migrations
+            }
         }
     }
-}
 }
