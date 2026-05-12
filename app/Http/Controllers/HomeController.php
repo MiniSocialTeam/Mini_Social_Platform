@@ -10,11 +10,12 @@ class HomeController extends Controller
     public function index()
     {
         // 1. Récupérer les stories actives (non expirées)
-        // $stories = Story::where('expires_at', '>', now())
-                        // ->with('user')
-                        // ->latest()
-                        // ->get();
-                        $stories = collect();
+        $stories = Story::where('expires_at', '>', now())
+                        ->with('user')
+                        ->latest()
+                        ->get();
+                        // $stories = collect();
+                        
 
         // 2. Récupérer les posts avec leurs auteurs et leurs likes
         $posts = Post::with(['user', 'likes'])

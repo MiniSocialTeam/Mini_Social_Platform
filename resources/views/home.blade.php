@@ -8,13 +8,16 @@
             
             <!-- SECTION STORIES -->
             <div class="card mb-4 shadow-sm border-0">
+
                 <div class="card-body">
                     <div class="d-flex gap-3 overflow-auto pb-2">
                         @foreach($stories as $story)
                             <div class="text-center" style="min-width: 80px;">
-                                <img src="{{ asset('storage/' . $story->image) }}" 
+                                <a href="{{ route('stories.show', $story->id_story) }}">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png"
                                      style="width: 65px; height: 65px; border-radius: 50%; border: 3px solid #e1306c; padding: 2px; object-fit: cover;">
                                 <div class="small text-truncate">{{ $story->user->first_name }}</div>
+                                </a>
                             </div>
                         @endforeach
                     </div>
