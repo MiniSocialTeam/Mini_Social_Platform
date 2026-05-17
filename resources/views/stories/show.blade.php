@@ -3,7 +3,7 @@
 @section('content')
 <div class="container text-center">
     <div class="mb-3">
-        <a href="{{ route('stories.index') }}" class="btn btn-secondary btn-sm">Retour</a>
+        <a href="/" class="btn btn-secondary btn-sm">Retour</a>
     </div>
 
     <div class="story-viewer" style="display: inline-block; position: relative;">

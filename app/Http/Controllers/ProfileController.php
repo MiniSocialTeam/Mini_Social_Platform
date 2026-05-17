@@ -1,18 +1,17 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
     public function show()
     {
         /** @var User $user */
-        $user = Auth::user();
-
+        $user = Auth::user()->load(['posts.likes', 'stories']);
         return view('profile.show', ['user' => $user]);
     }
 
@@ -20,7 +19,6 @@ class ProfileController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-
         return view('profile.edit', ['user' => $user]);
     }
 
@@ -31,17 +29,22 @@ class ProfileController extends Controller
 
         $data = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'bio' => ['nullable', 'string', 'max:500'],
-            'avatar' => ['nullable', 'image', 'max:2048'],
+            'last_name'  => ['required', 'string', 'max:255'],
+            'bio'        => ['nullable', 'string', 'max:500'],
+            'avatar'     => ['nullable', 'image', 'max:2048'],
         ]);
 
         if ($request->hasFile('avatar')) {
+            // Supprimer l'ancien avatar s'il existe
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
         $user->update($data);
 
-        return redirect()->route('profile.show')->with('success', 'Profil mis à jour avec succès.');
+        return redirect()->route('profile.show')
+                         ->with('success', 'Profil mis à jour avec succès.');
     }
 }

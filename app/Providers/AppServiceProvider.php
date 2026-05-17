@@ -20,15 +20,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // UNIQUEMENT POUR LE TEST 
-        if (config('app.env') === 'local') {
-            try {
-                $user = \App\Models\User::first();
-                if ($user) {
-                    auth()->login($user);
-                }
-            } catch (\Exception $e) {
-                // Tables don't exist yet, likely during migrations
-            }
-        }
+        // if (config('app.env') === 'local') {
+        //     try {
+        //         $user = \App\Models\User::first();
+        //         if ($user) {
+        //             auth()->login($user);
+        //         }
+        //     } catch (\Exception $e) {
+        //         // Tables don't exist yet, likely during migrations
+        //     }
+        // }
     }
 }
