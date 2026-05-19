@@ -1,25 +1,36 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Http\Request;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MessageController;
+
 
 // Route::get('/', function () {
 //     return view('welcome');
 // }); 
+
+Route::get('/chat/{userId}', function ($userId) {
+    return view('chat', ['receiverId' => $userId]);
+})->middleware('auth');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('login', [AuthController::class, 'login']);
     Route::get('register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('register', [AuthController::class, 'register']);
+    
 });
 
 Route::middleware('auth')->group(function () {
+    Route::post('/send-message', [MessageController::class, 'send']);
+    Route::get('/messages/{userId}', [MessageController::class, 'index']);
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -31,6 +42,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/stories/{story}', [StoryController::class, 'show'])->name('stories.show');
     Route::resource('posts', PostController::class);
     Route::post('posts/{post}/like', [LikeController::class, 'toggle']);
+
+
+   Route::post('/broadcasting/auth', function (Request $request) {
+        return Broadcast::auth($request);
+    });
 });
 
 

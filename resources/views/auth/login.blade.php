@@ -114,6 +114,7 @@
     }
     .left-tagline .grad {
         background: linear-gradient(135deg, var(--accent), var(--accent2));
+        background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
