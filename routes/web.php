@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\UserController;
 
 
 // Route::get('/', function () {
@@ -29,6 +30,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/send-message', [MessageController::class, 'send']);
     Route::get('/messages/{userId}', [MessageController::class, 'index']);
     Route::get('/', [HomeController::class, 'index'])->name('home');
