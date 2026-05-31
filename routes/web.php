@@ -11,6 +11,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FriendRequestController;
+
 
 
 // Route::get('/', function () {
@@ -30,7 +33,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users', [AuthController::class, 'index'])->name('users.index');
     Route::post('/send-message', [MessageController::class, 'send']);
     Route::get('/messages/{userId}', [MessageController::class, 'index']);
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -44,11 +47,30 @@ Route::middleware('auth')->group(function () {
     Route::get('/stories/{story}', [StoryController::class, 'show'])->name('stories.show');
     Route::resource('posts', PostController::class);
     Route::post('posts/{post}/like', [LikeController::class, 'toggle']);
+    Route::delete('/friends/cancel/{friendRequest}', [FriendRequestController::class, 'cancel'])
+     ->name('friends.cancel');
 
 
    Route::post('/broadcasting/auth', function (Request $request) {
         return Broadcast::auth($request);
     });
+    // Comments
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])
+         ->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+         ->name('comments.destroy');
+
+    // Friend requests
+    Route::get('/friends/requests', [FriendRequestController::class, 'index'])
+         ->name('friends.requests');
+    Route::post('/friends/send/{user}', [FriendRequestController::class, 'send'])
+         ->name('friends.send');
+    Route::patch('/friends/accept/{friendRequest}', [FriendRequestController::class, 'accept'])
+         ->name('friends.accept');
+    Route::patch('/friends/decline/{friendRequest}', [FriendRequestController::class, 'decline'])
+         ->name('friends.decline');
+    Route::delete('/friends/cancel/{friendRequest}', [FriendRequestController::class, 'cancel'])
+         ->name('friends.cancel');
 });
 
 

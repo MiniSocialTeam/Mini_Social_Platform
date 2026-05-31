@@ -510,6 +510,78 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 99px; }
+
+
+    .comment-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    margin-bottom: .75rem;
+}
+.comment-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: .72rem;
+    color: #fff;
+    flex-shrink: 0;
+}
+.comment-author {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: .15rem;
+}
+.comment-text {
+    font-size: .83rem;
+    color: #9ca3af;
+    line-height: 1.5;
+}
+.comment-delete {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: .75rem;
+    cursor: pointer;
+    padding: .2rem .4rem;
+    border-radius: 5px;
+    transition: color .2s, background .2s;
+}
+.comment-delete:hover { color: var(--accent2); background: rgba(233,69,96,.08); }
+.comment-form {
+    display: flex;
+    gap: .5rem;
+    margin-top: .75rem;
+}
+.comment-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .83rem;
+    padding: .5rem 1rem;
+    outline: none;
+    transition: border-color .2s;
+}
+.comment-input:focus { border-color: rgba(108,99,255,.4); }
+.comment-input::placeholder { color: var(--muted); }
+.comment-submit {
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    color: #fff;
+    font-size: .9rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity .2s;
+}
+.comment-submit:hover { opacity: .85; }
 </style>
 
 <div class="feed-wrapper">
@@ -580,10 +652,10 @@
                                   placeholder="Quoi de neuf, Mohamed ? Exprime-toi…"
                                   rows="3" required></textarea>
                         <div class="compose-footer">
-                            <div class="compose-actions">
+                            <!-- <div class="compose-actions">
                                 <button type="button" class="compose-action-btn" title="Photo">📷 Photo</button>
                                 <button type="button" class="compose-action-btn" title="Humeur">😊 Humeur</button>
-                            </div>
+                            </div> -->
                             <button type="submit" class="publish-btn">Publier →</button>
                         </div>
                     </form>
@@ -611,15 +683,50 @@
                 </div>
 
                 <div class="post-footer">
-                    <form action="{{ url('posts/'.$post->post_id.'/like') }}" method="POST" class="like-form">
-                        @csrf
-                        <button type="submit" class="like-btn {{ $post->isLikedBy(auth()->id() ?? 1) ? 'liked' : '' }}">
-                            ❤ <span>{{ $post->likes->count() }}</span>
-                        </button>
-                    </form>
-                    <button type="button" class="action-btn">💬 Commenter</button>
-                    <button type="button" class="action-btn">↗ Partager</button>
-                </div>
+    {{-- Like --}}
+    <form action="{{ url('posts/'.$post->post_id.'/like') }}" method="POST" class="like-form">
+        @csrf
+        <button type="submit" class="like-btn {{ $post->isLikedBy(auth()->id() ?? 1) ? 'liked' : '' }}">
+            ❤ <span>{{ $post->likes->count() }}</span>
+        </button>
+    </form>
+
+    {{-- Toggle commentaires --}}
+    <button type="button" class="action-btn" onclick="toggleComments({{ $post->post_id }})">
+        💬 {{ $post->comments->count() }}
+    </button>
+
+    <!-- <button type="button" class="action-btn">↗ Partager</button> -->
+</div>
+
+{{-- Section commentaires --}}
+<div id="comments-{{ $post->post_id }}" style="display:none; padding: 0 1.4rem 1rem;">
+    <hr class="divider">
+
+    @foreach($post->comments as $comment)
+    <div class="comment-item">
+        <div class="comment-avatar">
+            {{ strtoupper(substr($comment->user->first_name, 0, 1)) }}
+        </div>
+        <div class="comment-body">
+            <div class="comment-author">{{ $comment->user->first_name }}</div>
+            <div class="comment-text">{{ $comment->content }}</div>
+        </div>
+        @if($comment->user_id === auth()->id())
+        <form action="{{ route('comments.destroy', $comment->comment_id) }}" method="POST" style="margin-left:auto">
+            @csrf @method('DELETE')
+            <button type="submit" class="comment-delete">✕</button>
+        </form>
+        @endif
+    </div>
+    @endforeach
+
+    <form action="{{ route('comments.store', $post->post_id) }}" method="POST" class="comment-form">
+        @csrf
+        <input type="text" name="content" placeholder="Écrire un commentaire…" required class="comment-input">
+        <button type="submit" class="comment-submit">→</button>
+    </form>
+</div>
             </div>
             @empty
             <div class="empty-state">
@@ -637,7 +744,7 @@
             <div class="sidebar">
 
                 <!-- TRENDING -->
-                <div class="sidebar-card">
+                <!-- <div class="sidebar-card">
                     <div class="sidebar-title">Tendances</div>
                     <div class="trend-item">
                         <span class="trend-tag">#dev</span>
@@ -655,10 +762,10 @@
                         <span class="trend-tag">#laravel</span>
                         <span class="trend-count">312 posts</span>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- SUGGESTIONS -->
-                <div class="sidebar-card">
+                <!-- <div class="sidebar-card">
                     <div class="sidebar-title">Suggestions</div>
 
                     <div class="suggest-item">
@@ -679,7 +786,7 @@
                         <button class="follow-btn">Suivre</button>
                     </div>
 
-                </div>
+                </div> -->
 
 
             </div>
@@ -689,3 +796,9 @@
 </div>
 
 @endsection
+<script>
+function toggleComments(postId) {
+    const el = document.getElementById('comments-' + postId);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
