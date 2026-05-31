@@ -18,9 +18,7 @@ class HomeController extends Controller
                         
 
         // 2. Récupérer les posts avec leurs auteurs et leurs likes
-        $posts = Post::with(['user', 'likes'])
-                     ->latest()
-                     ->get();
+        $posts = Post::with(['user', 'likes', 'comments.user'])->latest()->get();
 
         return view('home', compact('stories', 'posts'));
     }

@@ -24,4 +24,10 @@ class Post extends Model
     public function isLikedBy($userId) {
         return $this->likes()->where('user_id', $userId)->exists();
     }
+   public function comments()
+    {
+    return $this->hasMany(Comment::class, 'post_id', 'post_id')
+                ->with('user')
+                ->latest();
+    }
 }

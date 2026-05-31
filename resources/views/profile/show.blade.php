@@ -328,6 +328,43 @@
         color: var(--muted);
         font-size: .87rem;
     }
+    .connect-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    padding: .55rem 1.1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    box-shadow: 0 2px 12px rgba(108,99,255,.3);
+}
+.connect-btn:hover { opacity: .88; transform: translateY(-1px); }
+
+.connection-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    border-radius: 10px;
+    padding: .55rem 1rem;
+    font-size: .83rem;
+    font-weight: 500;
+}
+.connection-badge.connected {
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.25);
+    color: #4ade80;
+}
+.connection-badge.pending {
+    background: rgba(245,158,11,.08);
+    border: 1px solid rgba(245,158,11,.2);
+    color: #fbbf24;
+}
 
     /* ── MOBILE ── */
     @media (max-width: 600px) {
@@ -345,6 +382,37 @@
 
     <div class="profile-card">
         <div class="avatar-wrap">
+            {{-- N'afficher que si ce n'est pas le profil de l'utilisateur connecté --}}
+@if(auth()->id() !== $user->user_id)
+<div style="display:flex; gap:.6rem; margin-bottom:.25rem;">
+
+    @if(auth()->user()->isFriendWith($user->user_id))
+        {{-- Déjà amis --}}
+        <span class="connection-badge connected">
+            ✓ Connecté
+        </span>
+
+    @elseif(auth()->user()->hasPendingRequestWith($user->user_id))
+        {{-- Demande en attente --}}
+        <span class="connection-badge pending">
+            ⏳ Demande en attente
+        </span>
+
+    @else
+        {{-- Pas encore connectés --}}
+        <form action="{{ route('friends.send', $user->user_id) }}" method="POST">
+            @csrf
+            <button type="submit" class="connect-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Se connecter
+            </button>
+        </form>
+    @endif
+
+</div>
+@endif
             <div class="avatar-ring">
                 <div class="avatar-inner">
                     @if($user->avatar_url)
