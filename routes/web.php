@@ -23,6 +23,11 @@ use App\Http\Controllers\FriendRequestController;
 Route::get('/chat/{userId}', function ($userId) {
     return view('chat', ['receiverId' => $userId]);
 })->middleware('auth');
+Route::get('/chat', function () {
+    $me      = Auth::user()->load(['sentRequests', 'receivedRequests']);
+    $friends = $me->friends()->get();
+    return view('chat.index', compact('friends'));
+})->middleware('auth')->name('chat.index');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -49,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('posts/{post}/like', [LikeController::class, 'toggle']);
     Route::delete('/friends/cancel/{friendRequest}', [FriendRequestController::class, 'cancel'])
      ->name('friends.cancel');
+
 
 
    Route::post('/broadcasting/auth', function (Request $request) {

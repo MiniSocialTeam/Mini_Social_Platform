@@ -592,7 +592,6 @@
 
             <!-- TOPBAR -->
             <div class="topbar">
-                <div class="topbar-title">/ Home</div>
                 <div class="topbar-badge">
                     <span class="dot"></span>
                     En ligne

@@ -25,3 +25,13 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Build output
+public/build/
+public/hot
+
+# Vite
+.vite/
