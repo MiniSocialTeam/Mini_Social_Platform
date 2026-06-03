@@ -269,6 +269,14 @@
 <body>
 
 <div class="chat-container">
+    <div style="background: white; padding: 12px 20px; border-bottom: 1px solid #e5e7eb; display: flex; gap: 10px; align-items: center;">
+        <label for="user-selector" style="font-weight: 600; color: #333; white-space: nowrap;">Chat as:</label>
+        <select id="user-selector" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; cursor: pointer;">
+            <option value="1">Alice Johnson (User 1)</option>
+            <option value="2">Bob Smith (User 2)</option>
+        </select>
+    </div>
+
     <div class="chat-header">
         <h2>Messages <span class="online-indicator"></span></h2>
         <span id="connection-status" style="font-size: 12px; opacity: 0.8;">● Connected</span>
@@ -416,6 +424,14 @@ async function sendMessage() {
 document.addEventListener('DOMContentLoaded', function() {
     const input = document.getElementById('msg-input');
     const btn = document.getElementById('send-btn');
+    const userSelector = document.getElementById('user-selector');
+
+    // Handle user selection change
+    userSelector.addEventListener('change', function() {
+        const selectedUserId = this.value;
+        const otherUserId = selectedUserId === '1' ? '2' : '1';
+        window.location.href = '/chat/' + otherUserId;
+    });
 
     input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {

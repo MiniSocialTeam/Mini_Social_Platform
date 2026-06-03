@@ -12,12 +12,24 @@ class UserSeeder extends Seeder
      */
     public function run(): void
 {
-    \App\Models\User::create([
-        'user_id' => 1, // Important pour ton MLD
-        'first_name' => 'Mohamed',
-        'last_name' => 'Test',
-        'email' => 'test@example.com',
-        'password' => bcrypt('password'),
-    ]);
+    \App\Models\User::firstOrCreate(
+        ['user_id' => 1],
+        [
+            'first_name' => 'Alice',
+            'last_name' => 'Johnson',
+            'email' => 'alice@example.com',
+            'password' => bcrypt('password'),
+        ]
+    );
+
+    \App\Models\User::firstOrCreate(
+        ['user_id' => 2],
+        [
+            'first_name' => 'Bob',
+            'last_name' => 'Smith',
+            'email' => 'bob@example.com',
+            'password' => bcrypt('password'),
+        ]
+    );
 }
 }
