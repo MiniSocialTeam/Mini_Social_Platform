@@ -21,7 +21,11 @@ use App\Http\Controllers\FriendRequestController;
 // }); 
 
 Route::get('/chat/{userId}', function ($userId) {
-    return view('chat', ['receiverId' => $userId]);
+    $receiver = \App\Models\User::find($userId);
+    if (!$receiver) {
+        abort(404, 'User not found');
+    }
+    return view('chat', ['receiverId' => $userId, 'receiver' => $receiver]);
 })->middleware('auth');
 Route::get('/chat', function () {
     $me      = Auth::user()->load(['sentRequests', 'receivedRequests']);
