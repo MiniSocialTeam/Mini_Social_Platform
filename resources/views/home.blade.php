@@ -642,13 +642,13 @@
                     <form action="{{ route('posts.store') }}" method="POST">
                         @csrf
                         <div class="compose-header">
-                            <div class="avatar-sm">M</div>
+                            <div class="avatar-sm">{{ strtoupper(substr(auth()->user()->first_name, 0, 1)) }}</div>
                             <div class="compose-placeholder">
                                 <span style="font-size:.82rem; color:var(--muted);">Partager quelque chose…</span>
                             </div>
                         </div>
                         <textarea name="content" class="compose-textarea"
-                                  placeholder="Quoi de neuf, Mohamed ? Exprime-toi…"
+                                  placeholder="Quoi de neuf, {{ auth()->user()->first_name }} ? Exprime-toi…"
                                   rows="3" required></textarea>
                         <div class="compose-footer">
                             <!-- <div class="compose-actions">

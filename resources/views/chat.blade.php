@@ -269,12 +269,23 @@
 <body>
 
 <div class="chat-container">
-    <div style="background: white; padding: 12px 20px; border-bottom: 1px solid #e5e7eb; display: flex; gap: 10px; align-items: center;">
-        <label for="user-selector" style="font-weight: 600; color: #333; white-space: nowrap;">Chat as:</label>
-        <select id="user-selector" style="padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; cursor: pointer;">
-            <option value="1">Alice Johnson (User 1)</option>
-            <option value="2">Bob Smith (User 2)</option>
-        </select>
+    <div style="background: white; padding: 12px 20px; border-bottom: 1px solid #e5e7eb; display: flex; gap: 15px; align-items: center;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-weight: 600; color: #333;">Chat as:</span>
+            <div style="padding: 6px 12px; background: #f0f0f0; border-radius: 6px; font-size: 13px;">
+                <strong>{{ auth()->user()->first_name }}</strong> (User {{ auth()->user()->user_id }})
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="color: #999;">↔</span>
+            <div style="padding: 6px 12px; background: #f0f0f0; border-radius: 6px; font-size: 13px;">
+                @if($receiver)
+                    <strong>{{ $receiver->first_name }}</strong> (User {{ $receiver->user_id }})
+                @else
+                    Unknown User
+                @endif
+            </div>
+        </div>
     </div>
 
     <div class="chat-header">
@@ -329,28 +340,46 @@ function clearEmptyState() {
 }
 
 function appendMessage(text, isMine, timestamp = null) {
-    clearEmptyState();
-    const box = document.getElementById('chat-box');
+    console.log('📨 appendMessage called with:', { text, isMine, timestamp });
     
-    const messageGroup = document.createElement('div');
-    messageGroup.className = `message-group ${isMine ? 'own' : ''}`;
+    try {
+        clearEmptyState();
+        const box = document.getElementById('chat-box');
+        
+        if (!box) {
+            console.error('❌ CRITICAL: chat-box element not found!');
+            return;
+        }
+        
+        console.log('✅ Found chat-box:', box);
+        
+        const messageGroup = document.createElement('div');
+        messageGroup.className = `message-group ${isMine ? 'own' : ''}`;
 
-    const bubble = document.createElement('div');
-    bubble.className = `message-bubble ${isMine ? 'own' : 'other'}`;
+        const bubble = document.createElement('div');
+        bubble.className = `message-bubble ${isMine ? 'own' : 'other'}`;
 
-    const messageText = document.createElement('span');
-    messageText.textContent = text;
+        const messageText = document.createElement('span');
+        messageText.textContent = text;
 
-    const timeSpan = document.createElement('span');
-    timeSpan.className = 'message-timestamp';
-    timeSpan.textContent = timestamp || getTimeString();
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-timestamp';
+        timeSpan.textContent = timestamp || getTimeString();
 
-    bubble.appendChild(messageText);
-    bubble.appendChild(timeSpan);
-    messageGroup.appendChild(bubble);
-    
-    box.appendChild(messageGroup);
-    box.scrollTop = box.scrollHeight;
+        bubble.appendChild(messageText);
+        bubble.appendChild(timeSpan);
+        messageGroup.appendChild(bubble);
+        
+        console.log('✅ Created message element:', messageGroup);
+        
+        box.appendChild(messageGroup);
+        box.scrollTop = box.scrollHeight;
+        
+        console.log('✅ Message appended to DOM, scrolled to bottom');
+    } catch (err) {
+        console.error('❌ Error in appendMessage:', err);
+        console.error('Stack:', err.stack);
+    }
 }
 
 function showTypingIndicator() {
@@ -422,16 +451,19 @@ async function sendMessage() {
 
 // Send message on Enter key
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Chat page initialized');
+    console.log('📊 senderId:', senderId);
+    console.log('📊 receiverId:', receiverId);
+    
     const input = document.getElementById('msg-input');
     const btn = document.getElementById('send-btn');
-    const userSelector = document.getElementById('user-selector');
-
-    // Handle user selection change
-    userSelector.addEventListener('change', function() {
-        const selectedUserId = this.value;
-        const otherUserId = selectedUserId === '1' ? '2' : '1';
-        window.location.href = '/chat/' + otherUserId;
-    });
+    
+    if (!input || !btn) {
+        console.error('❌ Chat inputs not found!');
+        return;
+    }
+    
+    console.log('✅ Found chat inputs');
 
     input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -451,17 +483,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // ✅ Load old messages with error handling
     fetch('/messages/' + receiverId)
         .then(res => {
+            console.log('📥 Fetch messages response:', res.status);
             if (!res.ok) throw new Error('Failed to load messages');
             return res.json();
         })
         .then(msgs => {
+            console.log('📦 Loaded messages:', msgs);
             messagesLoaded = true;
             msgs.forEach(m => {
                 const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : getTimeString();
+                console.log('📨 Appending old message:', { text: m.message, senderIsMe: m.sender_id === senderId });
                 appendMessage(m.message, m.sender_id === senderId, timeStr);
             });
+            console.log('✅ All old messages loaded');
         })
-        .catch(err => console.error('Load error:', err));
+        .catch(err => console.error('❌ Load error:', err));
 
     // ✅ Real-time listener with Laravel Echo
     if (window.Echo) {
@@ -473,15 +509,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Listen for messages
         channel.listen('.message.sent', (event) => {
-            console.log('=== MESSAGE RECEIVED ===');
-            console.log('event.sender_id:', event.sender_id);
-            console.log('senderId:', senderId);
+            console.log('🔔 === MESSAGE RECEIVED ===');
+            console.log('📦 Full event object:', event);
+            console.log('📊 event.sender_id:', event.sender_id, 'type:', typeof event.sender_id);
+            console.log('👤 senderId:', senderId, 'type:', typeof senderId);
+            console.log('📝 event.message:', event.message);
             
             hideTypingIndicator();
 
+            // Debug: check if sender IDs match
+            const isSameUser = event.sender_id == senderId;
+            console.log('🔍 Is same user?', isSameUser, '(will skip if true)');
+
             if (event.sender_id != senderId) {
-                console.log('✅ Appending to DOM...');
+                console.log('✅ Different user - appending to DOM...');
+                console.log('📨 Calling appendMessage with:', event.message);
                 appendMessage(event.message, false);
+                console.log('✅ appendMessage completed');
+            } else {
+                console.log('⏭️ Skipped: message from self');
             }
         });
 
